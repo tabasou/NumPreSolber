@@ -8,6 +8,8 @@ namespace NumPreSolber
         {
             NSApplication.Init();
 
+            Question q = new Question();
+
             NSApplication.Main(args);
         }
     }
