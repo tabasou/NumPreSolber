@@ -6,12 +6,15 @@ namespace NumPreSolber
     public class Question
     {
         int [,] iQuestGrid;
+        Solber sol;
         public Question()
         {
             iQuestGrid = new int[Consts.HeightMax, Consts.WidthMax];
 
             this.Test_QuestionSelect(0);
             DispGrid();
+            sol = new Solber();
+            sol.setQuestion(iQuestGrid);
 
         }
 
@@ -85,6 +88,17 @@ namespace NumPreSolber
         public const int NumMin = 0;        /* マスに入る数字の最小値（0は未決定） */
         public const int NumMax = 9;        /* マスに入る数字の最大値 */
         public const int BlockNumMax = 9;   /* Block(3×3マス)の数（左上から横方向に0,1,2下に行って3,4,5） */
+        public const int POT_1 = 0b0000_0000_0000_0001;
+        public const int POT_2 = 0b0000_0000_0000_0010;
+        public const int POT_3 = 0b0000_0000_0000_0100;
+        public const int POT_4 = 0b0000_0000_0000_1000;
+        public const int POT_5 = 0b0000_0000_0001_0000;
+        public const int POT_6 = 0b0000_0000_0010_0000;
+        public const int POT_7 = 0b0000_0000_0100_0000;
+        public const int POT_8 = 0b0000_0000_1000_0000;
+        public const int POT_9 = 0b0000_0001_0000_0000;
+
+        public static readonly int[] POTs = { POT_1, POT_2, POT_3, POT_4, POT_5, POT_6, POT_7, POT_8, POT_9}; 
 
     }
 }

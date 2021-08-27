@@ -78,6 +78,7 @@
     </Compile>
     <Compile Include="Question.cs" />
     <Compile Include="Tester.cs" />
+    <Compile Include="Solber.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Main.storyboard" />
