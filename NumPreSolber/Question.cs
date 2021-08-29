@@ -7,23 +7,30 @@ namespace NumPreSolber
     {
         int [,] iQuestGrid;
         Solber sol;
+        int QuestionLv;
+        int QuestionNo;
         public Question()
         {
             iQuestGrid = new int[Consts.HeightMax, Consts.WidthMax];
 
-            this.Test_QuestionSelect(0);
+            QuestionLv = Consts.QUESTION_Lv_Easy;                               /* ←ここで問題のLevelを指定 */
+            QuestionNo = 2;                                                     /* ←ここで使用する問題のNoを指定 */
+
+            this.Test_QuestionSelect(QuestionLv, QuestionNo);
             DispGrid();
             sol = new Solber();
             sol.setQuestion(iQuestGrid);
+            //sol.test_setAnswerInfo(QuestionLv, QuestionNo);                   /* 問題の解答をチェックしながら解く場合は実行する */
+            sol.SolberMain();
 
         }
 
         /* Test用の問題をiQuestGridにセットする */
-        public void Test_QuestionSelect(int iNo)
+        public void Test_QuestionSelect(int iLv, int iNo)
         {
             Tester tester = new Tester();
 
-            tester.getQuestion(0, ref iQuestGrid);
+            tester.getQuestion(iLv, iNo, ref iQuestGrid);
         }
         /* 現状のGridの状態を標準出力に出力する */
         public void DispGrid()
@@ -98,7 +105,22 @@ namespace NumPreSolber
         public const int POT_8 = 0b0000_0000_1000_0000;
         public const int POT_9 = 0b0000_0001_0000_0000;
 
-        public static readonly int[] POTs = { POT_1, POT_2, POT_3, POT_4, POT_5, POT_6, POT_7, POT_8, POT_9}; 
+        public static readonly int[] POTs = { POT_1, POT_2, POT_3, POT_4, POT_5, POT_6, POT_7, POT_8, POT_9};
+
+        public const int Type_YOKO = 0;
+        public const int Type_TATE = 1;
+        public const int Type_BLOCK = 2;
+
+        public const int NINE = 9;
+
+        public const int QUESTION_Lv_Easy = 0;
+        public const int QUESTION_Lv_Normal = 1;
+        public const int QUESTION_Lv_Difficult = 2;
+        public const int QUESTION_Lv_Expert = 3;
+
+        public const bool ENABLE_CHECK_ANS = true;
+        public const bool DISABLE_CHECK_ANS = false;
+
 
     }
 }
