@@ -204,6 +204,17 @@ namespace NumPreSolber
             }
             return rtn;
         }
+
+        public int getQuestionNumMax(int Lv)
+        {
+            int QuestNum = 0;
+            if(Lv == Consts.QUESTION_Lv_Easy)
+            {
+                QuestNum = iQuestions_EasyLv.Length / Consts.WidthMax / Consts.HeightMax;
+            }
+
+            return QuestNum;
+        }
         
     }
 }

@@ -37,7 +37,7 @@ namespace NumPreSolber
             }
             public void setTarget(int hIdx, int wIdx, int setType, in int[,] iMG, in int[,] iPG, in int[,] iPB)
             {
-                if((hIdx < 0) || (Consts.HeightMax <= hIdx) || (wIdx < 0) || (Consts.WidthMax <= wIdx) || (setType < 0) || (3 <= setType))
+                if ((hIdx < 0) || (Consts.HeightMax <= hIdx) || (wIdx < 0) || (Consts.WidthMax <= wIdx) || (setType < 0) || (3 <= setType))
                 {
                     Console.Error.WriteLine("Error!!! -----> : " + "NineData.setTarget() input error");
                 }
@@ -49,7 +49,7 @@ namespace NumPreSolber
                 switch (type)
                 {
                     case Consts.Type_YOKO:
-                        for(int i = 0; i < Consts.NINE; i++)
+                        for (int i = 0; i < Consts.NINE; i++)
                         {
                             MG[i] = iMG[targetHindex, i];
                             PG[i] = iPG[targetHindex, i];
@@ -57,7 +57,7 @@ namespace NumPreSolber
                         }
                         break;
                     case Consts.Type_TATE:
-                        for(int j = 0; j < Consts.NINE; j++)
+                        for (int j = 0; j < Consts.NINE; j++)
                         {
                             MG[j] = iMG[j, targetWindex];
                             PG[j] = iPG[j, targetWindex];
@@ -65,12 +65,12 @@ namespace NumPreSolber
                         }
                         break;
                     case Consts.Type_BLOCK:
-                        int block_UL_hIdx = (targetHindex / 3) * 3; /* ターゲットセルを含むブロックの左上セルの縦座標 */   
+                        int block_UL_hIdx = (targetHindex / 3) * 3; /* ターゲットセルを含むブロックの左上セルの縦座標 */
                         int block_UL_wIdx = (targetWindex / 3) * 3; /* ターゲットセルを含むブロックの左上セルの横座標 */
 
-                        for(int j = 0; j < 3; j++)
+                        for (int j = 0; j < 3; j++)
                         {
-                            for(int i = 0; i < 3; i++)
+                            for (int i = 0; i < 3; i++)
                             {
                                 /* 1 2 3 
                                  * 6 5 4  ---> MG[9] = [1,2,3,6,5,4,7,8,9]
@@ -131,13 +131,13 @@ namespace NumPreSolber
 
             public void updatePGbyMG()
             {
-                for(int n = 0; n < Consts.NINE; n++)
+                for (int n = 0; n < Consts.NINE; n++)
                 {
-                    if(MG[n] != 0)
+                    if (MG[n] != 0)
                     {
-                        for(int m = 0; m < Consts.NINE; m++)
+                        for (int m = 0; m < Consts.NINE; m++)
                         {
-                            if(m == n)
+                            if (m == n)
                             {
                                 PG[m] = 0;
                                 PB[m] = 0;
@@ -149,7 +149,7 @@ namespace NumPreSolber
                         }
                     }
                 }
-             }
+            }
 
             private void clrPG(int index, int iPotNum)
             {
@@ -186,7 +186,7 @@ namespace NumPreSolber
             iPotentialsGrid = new int[Consts.HeightMax, Consts.WidthMax];
             iPotentialBits = new int[Consts.HeightMax, Consts.WidthMax];
             stBlockULPoints = new stPoints[Consts.BlockNumMax];
-            
+
             /* 初期化 */
             initPotentialsGrid();
             initBlockPoints();
@@ -198,11 +198,11 @@ namespace NumPreSolber
         /**********************************************************************/
         /* このクラスのiMainGridに問題をセットする
          */
-        public void setQuestion(int [,] q)
+        public void setQuestion(int[,] q)
         {
-            for(int j = 0; j < Consts.HeightMax; j++)
+            for (int j = 0; j < Consts.HeightMax; j++)
             {
-                for(int i = 0; i < Consts.WidthMax; i++)
+                for (int i = 0; i < Consts.WidthMax; i++)
                 {
                     iMainGrid[j, i] = q[j, i];
                 }
@@ -215,15 +215,15 @@ namespace NumPreSolber
          */
         private void initPotentialsGrid()
         {
-            for(int j = 0; j < Consts.HeightMax; j++)
+            for (int j = 0; j < Consts.HeightMax; j++)
             {
-                for(int i = 0; i < Consts.WidthMax; i++)
+                for (int i = 0; i < Consts.WidthMax; i++)
                 {
                     iPotentialsGrid[j, i] = 0;
                     iPotentialBits[j, i] = 0;
                     for (int k = Consts.NumMin; k < Consts.NumMax; k++)
                     {
-                        if(setPotential(j,i,k+1) != true)
+                        if (setPotential(j, i, k + 1) != true)
                         {
                             outPutSystemErrror(MethodBase.GetCurrentMethod().Name);
                         }
@@ -241,20 +241,20 @@ namespace NumPreSolber
         {
             bool blRtn = true;
             /* 引数チェック */
-            if((check_HW(h,w) != true) || (check_iPotNum(iPotNum) != true))
+            if ((check_HW(h, w) != true) || (check_iPotNum(iPotNum) != true))
             {
                 blRtn = false;
                 return blRtn;
             }
 
-            if((iPotentialsGrid[h, w] & Consts.POTs[iPotNum - 1]) == 0)
+            if ((iPotentialsGrid[h, w] & Consts.POTs[iPotNum - 1]) == 0)
             {
                 /* ビットが立っていなければビットを立てて iPotentialBits を更新する */
                 iPotentialsGrid[h, w] |= Consts.POTs[iPotNum - 1];
                 iPotentialBits[h, w]++;
 
                 /* ErrorCheck */
-                if(iPotentialBits[h, w] > 45)
+                if (iPotentialBits[h, w] > 45)
                 {
                     outPutSystemErrror("over45 " + MethodBase.GetCurrentMethod().Name);
                 }
@@ -282,9 +282,9 @@ namespace NumPreSolber
              * ・・・
              * stBlockULPoints[8] = $の座標(6,6)
              */
-            for(int j = 0; j < 3; j++)
+            for (int j = 0; j < 3; j++)
             {
-                for(int i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     stBlockULPoints[j * 3 + i].h_idx = j * 3;
                     stBlockULPoints[j * 3 + i].w_idx = i * 3;
@@ -315,15 +315,15 @@ namespace NumPreSolber
             {
                 return false;
             }
-            if(Consts.HeightMax <= h)
+            if (Consts.HeightMax <= h)
             {
                 return false;
             }
-            if(w < 0)
+            if (w < 0)
             {
                 return false;
             }
-            if(Consts.WidthMax <= w)
+            if (Consts.WidthMax <= w)
             {
                 return false;
             }
@@ -333,7 +333,7 @@ namespace NumPreSolber
         {
             /*       iPotNum:可能性のある数字(1〜9)  */
             /* をチェックする。OKならtrue            */
-            if(iPotNum <= Consts.NumMin)
+            if (iPotNum <= Consts.NumMin)
             {
                 return false;
             }
@@ -344,7 +344,7 @@ namespace NumPreSolber
             return true;
         }
 
-        /* 引数で指定した位置に可能性のある数字の位置に対応するbitをクリアする
+        /* 引数で指定した位置に、引数で指定した入る可能性のある数字の位置に対応するbitをクリアする
          * input h:縦位置(0〜Consts.HeightMax-1)
          *       w:横位置(0〜Consts.WidthMax-1)
          *       iPotNum:可能性のある数字(1〜9)
@@ -360,12 +360,12 @@ namespace NumPreSolber
                 return blRtn;
             }
             /* フラグが立っていればクリアする */
-            if ((iPotentialsGrid[h,w] & Consts.POTs[iPotNum-1]) != 0)
+            if ((iPotentialsGrid[h, w] & Consts.POTs[iPotNum - 1]) != 0)
             {
-                iPotentialsGrid[h, w] ^= Consts.POTs[iPotNum-1];
+                iPotentialsGrid[h, w] ^= Consts.POTs[iPotNum - 1];
                 iPotentialBits[h, w]--;
                 /* エラーチェック */
-                if(iPotentialBits[h, w] < 0)
+                if (iPotentialBits[h, w] < 0)
                 {
                     outPutSystemErrror("[E]:iPotentialBits < 0");
                     blRtn = false;
@@ -387,37 +387,75 @@ namespace NumPreSolber
         private int convertPG2Number(int PGval)
         {
             int rtnNumber = 0;
-            for(int i = 0; i < Consts.NINE; i++)
+            for (int i = 0; i < Consts.NINE; i++)
             {
-                if(Consts.POTs[i] == PGval)
+                if (Consts.POTs[i] == PGval)
                 {
                     rtnNumber = i + 1;
                 }
             }
             return rtnNumber;
         }
+
+        /* 終了チェック関数(true:終了、false:未完了)
+         */
+        private bool isFinish()
+        {
+            bool rtn = true;
+            for (int j = 0; j < Consts.HeightMax; j++)
+            {
+                for (int i = 0; i < Consts.WidthMax; i++)
+                {
+                    if (iPotentialBits[j, i] != 0)
+                    {
+                        rtn = false;
+                        return rtn;
+                    }
+                }
+            }
+            return rtn;
+        }
+
+        private void clrPotentialsGrid(int h_idx, int w_idx, int iPotNum)
+        {
+            /* フラグが立っていればクリアする */
+            if ((iPotentialsGrid[h_idx, w_idx] & Consts.POTs[iPotNum - 1]) != 0)
+            {
+                iPotentialsGrid[h_idx, w_idx] ^= Consts.POTs[iPotNum - 1];
+                iPotentialBits[h_idx, w_idx]--;
+                /* エラーチェック */
+                if (iPotentialBits[h_idx, w_idx] < 0)
+                {
+                    outPutSystemErrror(MethodBase.GetCurrentMethod().Name);
+                }
+            }
+        }
+
         /*
          * 
          */
         public void SolberMain()
         {
+            bool Rtn;
+            /* 問題の初期値から初期ポテンシャルグリッドを作成する */
             updatePotentialsGridByMainGrid();
+            /* 初期ポテンシャルグリッドから明示的に解決できる値を埋める処理を繰り返す */
+            Rtn = updateMainGridByPotentialsGrid();
 
-            DispPotentialGridAll();
-
-            updateMainGridByPotentialsGrid();
-
-            DispGrid(iMainGrid);
-
-
-            for (int j = 0; j < Consts.HeightMax; j++)
+            if (Rtn == true)
             {
-                for(int i = 0; i < Consts.WidthMax; i++)
-                {
-                    //DispPotential(j, i);
-                }
-                    
+                /* 解決済みなら結果を表示 */
+                DispGrid(iMainGrid);
             }
+            else
+            {
+                DispPotentialGridAll();
+                DispGrid(iMainGrid);
+
+                removePossibilityWithConbination();
+            }
+
+
 
 
 
@@ -432,7 +470,7 @@ namespace NumPreSolber
         private void updatePotentialsGridByMainGrid()
         {
 #if true
-            for(int n = 0; n < Consts.NINE; n++)
+            for (int n = 0; n < Consts.NINE; n++)
             {
                 updatePotentialsGridByMainGrid(n, 0, Consts.Type_YOKO);
                 updatePotentialsGridByMainGrid(0, n, Consts.Type_TATE);
@@ -468,11 +506,11 @@ namespace NumPreSolber
 
         private void updatePotentialsGridByMainGrid(int[,] changedMG)
         {
-            for(int j = 0; j < Consts.WidthMax; j++)
+            for (int j = 0; j < Consts.WidthMax; j++)
             {
-                for(int i = 0; i < Consts.HeightMax; i++)
+                for (int i = 0; i < Consts.HeightMax; i++)
                 {
-                    if(changedMG[j,i] != 0)
+                    if (changedMG[j, i] != 0)
                     {
                         /* 対象セルを含む横、縦、ブロックのポテンシャルグリッドの内容を更新する */
                         updatePotentialsGridByMainGrid(new stPoints(j, i));
@@ -489,28 +527,32 @@ namespace NumPreSolber
             updatePotentialsGridByMainGrid(target.h_idx, target.w_idx, Consts.Type_BLOCK);
         }
 
-        private void updateMainGridByPotentialsGrid()
+        private bool updateMainGridByPotentialsGrid()
         {
             int iLimit = Consts.HeightMax * Consts.WidthMax * Consts.NINE;
             int iLoopCounter = 0;
 
             int[,] changedMainGrid = new int[Consts.HeightMax, Consts.WidthMax];
 
-            
+
             bool isChangeMG = updateMainGridByPotentialsGridSub(ref changedMainGrid);
 
-            while(isChangeMG == true)
+            while (isChangeMG == true)
             {
                 updatePotentialsGridByMainGrid(changedMainGrid);
                 isChangeMG = updateMainGridByPotentialsGridSub(ref changedMainGrid);
                 //DispPotentialGridAll();
                 iLoopCounter++;
-                if(iLimit < iLoopCounter)
+                if (iLimit < iLoopCounter)
                 {
                     outPutSystemErrror("loop limit" + MethodBase.GetCurrentMethod().Name);
                     break;
                 }
             }
+
+            /* 終了チェック */
+            return isFinish();
+
 
         }
         private bool updateMainGridByPotentialsGridSub(ref int[,] changedMG)
@@ -525,7 +567,7 @@ namespace NumPreSolber
                         int setValue = convertPG2Number(iPotentialsGrid[j, i]);
                         if (setValue != 0)
                         {
-                            if(test_checkAnswer(j, i, setValue))
+                            if (test_checkAnswer(j, i, setValue))
                             {
                                 iMainGrid[j, i] = setValue;
                                 clrPotentialsGrid(j, i, setValue);
@@ -563,20 +605,12 @@ namespace NumPreSolber
             return isChangedMainGridValue;
         }
 
-        private void clrPotentialsGrid(int h_idx, int w_idx, int iPotNum)
+        private void removePossibilityWithConbination()
         {
-            /* フラグが立っていればクリアする */
-            if ((iPotentialsGrid[h_idx, w_idx] & Consts.POTs[iPotNum - 1]) != 0)
-            {
-                iPotentialsGrid[h_idx, w_idx] ^= Consts.POTs[iPotNum - 1];
-                iPotentialBits[h_idx, w_idx]--;
-                /* エラーチェック */
-                if (iPotentialBits[h_idx, w_idx] < 0)
-                {
-                    outPutSystemErrror(MethodBase.GetCurrentMethod().Name);
-                }
-            }
+
         }
+
+
 
 
         /**********************************************************************/
@@ -640,13 +674,13 @@ namespace NumPreSolber
         {
             // 標準出力のエンコーディングにUTF-8を用いる
             Console.OutputEncoding = Encoding.UTF8;
-            String Waku_Upper =   "┏━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┓";
+            String Waku_Upper = "┏━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┳━┯━┯━┓";
             String Waku_middle1 = "┠─┼─┼─╂─┼─┼─╂─┼─┼─╂─┼─┼─╂─┼─┼─╂─┼─┼─╂─┼─┼─╂─┼─┼─╂─┼─┼─┨";
             String Waku_middle2 = "┣━┿━┿━╋━┿━┿━╋━┿━┿━╋━┿━┿━╋━┿━┿━╋━┿━┿━╋━┿━┿━╋━┿━┿━╋━┿━┿━┫";
-            String Waku_buttom =  "┗━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┛";
+            String Waku_buttom = "┗━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┻━┷━┷━┛";
 
 
-            
+
             int jk = 0;
             int il = 0;
 
@@ -663,13 +697,13 @@ namespace NumPreSolber
                         for (int l = 0; l < 3; l++)
                         {
                             /* bitが立っていれば数字、立ってなければスペース */
-                            if ((iPotentialsGrid[j, i] & Consts.POTs[k*3+l]) == 0)
+                            if ((iPotentialsGrid[j, i] & Consts.POTs[k * 3 + l]) == 0)
                             {
                                 Console.Write(" ");
                             }
                             else
                             {
-                                Console.Write("{0}", (k*3+l) + 1);
+                                Console.Write("{0}", (k * 3 + l) + 1);
                             }
                             /* 罫線 */
                             if ((l % 3) == 2)
@@ -685,7 +719,7 @@ namespace NumPreSolber
                     Console.WriteLine("");
                     if ((k % 3) == 2)
                     {
-                        if (j*3+jk < Consts.HeightMax*3 - 1)
+                        if (j * 3 + jk < Consts.HeightMax * 3 - 1)
                         {
                             Console.WriteLine(Waku_middle2);
                         }
@@ -715,10 +749,10 @@ namespace NumPreSolber
                 outPutSystemErrror(MethodBase.GetCurrentMethod().Name);
             }
 
-            Console.WriteLine("Potential of [{0},{1}] = {2}({3}bits Enbale)", h, w, iPotentialsGrid[h,w], iPotentialBits[h,w]);
+            Console.WriteLine("Potential of [{0},{1}] = {2}({3}bits Enbale)", h, w, iPotentialsGrid[h, w], iPotentialBits[h, w]);
             for (int k = 0; k < 3; k++)
             {
-                for(int l = 0; l < 3; l++)
+                for (int l = 0; l < 3; l++)
                 {
                     /* bitが立っていれば数字、立ってなければスペース */
                     if ((iPotentialsGrid[h, w] & Consts.POTs[k * 3 + l]) == 0)
@@ -736,9 +770,9 @@ namespace NumPreSolber
 
         public bool test_checkAnswer(int hIdx, int wIdx, int checkVal)
         {
-            if(test_blIsCheckAnswer == Consts.ENABLE_CHECK_ANS)
+            if (test_blIsCheckAnswer == Consts.ENABLE_CHECK_ANS)
             {
-                if(test_ANS.getAnswer(test_iQLv, test_iQNo, hIdx, wIdx) == checkVal)
+                if (test_ANS.getAnswer(test_iQLv, test_iQNo, hIdx, wIdx) == checkVal)
                 {
                     return true;
                 }
@@ -769,6 +803,55 @@ namespace NumPreSolber
             Console.Error.WriteLine("Error!!! -----> : " + str);
         }
     }
-    
+
+    public class Solber_test
+    {
+        int[,] iQuestGrid;
+        Solber sol;
+        int QuestionLv;
+        int QuestionNo;
+        int QuestionNumMax;
+        Tester tester;
+        public Solber_test()
+        {
+            tester = new Tester();
+            executTestAll();
+        }
+
+        public void executTestAll()
+        {
+            Console.WriteLine("<<< Test Start >>>");
+            executeTest_EasyLv();
+            executeTest_NormalLv();
+            Console.WriteLine("<<< All Test Passed !! >>>");
+
+        }
+
+        public void executeTest_EasyLv()
+        {
+            Console.WriteLine("<<< EasyLv Test Start >>>");
+            iQuestGrid = new int[Consts.HeightMax, Consts.WidthMax];
+
+            QuestionLv = Consts.QUESTION_Lv_Easy;                             /* ←ここで問題のLevelを指定 */
+            QuestionNo = 0;                                                     /* ←ここで使用する問題のNoを指定 */
+            QuestionNumMax = tester.getQuestionNumMax(Consts.QUESTION_Lv_Easy);
+
+            for(QuestionNo = 0; QuestionNo < QuestionNumMax; QuestionNo++)
+            {
+                Console.WriteLine("<<< Question No:{0} >>>", QuestionNo);
+                tester.getQuestion(QuestionLv, QuestionNo, ref iQuestGrid);
+                sol = new Solber();
+                sol.setQuestion(iQuestGrid);
+                sol.test_setAnswerInfo(QuestionLv, QuestionNo);                 
+                sol.SolberMain();
+            }
+        }
+        public void executeTest_NormalLv()
+        {
+
+        }
+
+
+    }
 
 }

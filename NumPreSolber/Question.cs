@@ -23,6 +23,9 @@ namespace NumPreSolber
             //sol.test_setAnswerInfo(QuestionLv, QuestionNo);                   /* 問題の解答をチェックしながら解く場合は実行する */
             sol.SolberMain();
 
+
+            /* 全問題テスト */
+            Solber_test SolTest = new Solber_test();
         }
 
         /* Test用の問題をiQuestGridにセットする */
