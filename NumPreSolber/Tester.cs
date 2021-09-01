@@ -126,15 +126,15 @@ namespace NumPreSolber
             iAnswer_NormalLv = new int[,,]
             {
                 {   /* No 0 Anser */
-                    {0,0,0,0,0,0,0,0,0 },
-                    {0,0,0,0,0,0,0,0,0 },
-                    {0,0,0,0,0,0,0,0,0 },
-                    {0,0,0,0,0,0,0,0,0 },
-                    {0,0,0,0,0,0,0,0,0 },
-                    {0,0,0,0,0,0,0,0,0 },
-                    {0,0,0,0,0,0,0,0,0 },
-                    {0,0,0,0,0,0,0,0,0 },
-                    {0,0,0,0,0,0,0,0,0 },
+                    {4,1,5,3,7,8,9,2,6 },
+                    {9,2,8,5,6,1,3,4,7 },
+                    {7,6,3,4,2,9,1,5,8 },
+                    {3,9,6,7,4,5,2,8,1 },
+                    {2,8,4,1,9,6,7,3,5 },
+                    {1,5,7,8,3,2,4,6,9 },
+                    {6,7,2,9,8,4,5,1,3 },
+                    {8,3,1,2,5,7,6,9,4 },
+                    {5,4,9,6,1,3,8,7,2 },
                 },
                 {   /* No 1 Answer */
                     {0,0,0,0,0,0,0,0,0 },
@@ -208,9 +208,13 @@ namespace NumPreSolber
         public int getQuestionNumMax(int Lv)
         {
             int QuestNum = 0;
-            if(Lv == Consts.QUESTION_Lv_Easy)
+            if (Lv == Consts.QUESTION_Lv_Easy)
             {
                 QuestNum = iQuestions_EasyLv.Length / Consts.WidthMax / Consts.HeightMax;
+            }
+            if (Lv == Consts.QUESTION_Lv_Normal)
+            {
+                QuestNum = iQuestions_NormalLv.Length / Consts.WidthMax / Consts.HeightMax;
             }
 
             return QuestNum;

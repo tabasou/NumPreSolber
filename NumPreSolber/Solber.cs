@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text;
 using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NumPreSolber
 {
@@ -25,6 +27,7 @@ namespace NumPreSolber
             public int[] MG;
             public int[] PG;
             public int[] PB;
+            private int emptyBoxNum;    /* 値が決まっていない空のマスの数 */
 
             public NineData()
             {
@@ -34,8 +37,9 @@ namespace NumPreSolber
                 MG = new int[Consts.NINE];
                 PG = new int[Consts.NINE];
                 PB = new int[Consts.NINE];
+                emptyBoxNum = 0;
             }
-            public void setTarget(int hIdx, int wIdx, int setType, in int[,] iMG, in int[,] iPG, in int[,] iPB)
+            public int setTarget(int hIdx, int wIdx, int setType, in int[,] iMG, in int[,] iPG, in int[,] iPB)
             {
                 if ((hIdx < 0) || (Consts.HeightMax <= hIdx) || (wIdx < 0) || (Consts.WidthMax <= wIdx) || (setType < 0) || (3 <= setType))
                 {
@@ -54,6 +58,10 @@ namespace NumPreSolber
                             MG[i] = iMG[targetHindex, i];
                             PG[i] = iPG[targetHindex, i];
                             PB[i] = iPB[targetHindex, i];
+                            if(MG[i] == 0)
+                            {
+                                emptyBoxNum++;
+                            }
                         }
                         break;
                     case Consts.Type_TATE:
@@ -62,6 +70,10 @@ namespace NumPreSolber
                             MG[j] = iMG[j, targetWindex];
                             PG[j] = iPG[j, targetWindex];
                             PB[j] = iPB[j, targetWindex];
+                            if(MG[j] == 0)
+                            {
+                                emptyBoxNum++;
+                            }
                         }
                         break;
                     case Consts.Type_BLOCK:
@@ -79,6 +91,10 @@ namespace NumPreSolber
                                 MG[j * 3 + i] = iMG[block_UL_hIdx + j, block_UL_wIdx + i];
                                 PG[j * 3 + i] = iPG[block_UL_hIdx + j, block_UL_wIdx + i];
                                 PB[j * 3 + i] = iPB[block_UL_hIdx + j, block_UL_wIdx + i];
+                                if(MG[j * 3 + i] == 0)
+                                {
+                                    emptyBoxNum++;
+                                }
                             }
                         }
                         break;
@@ -86,6 +102,8 @@ namespace NumPreSolber
                         Console.Error.WriteLine("Error!!! -----> : " + "NineData.setTarget() setType error");
                         break;
                 }
+
+                return emptyBoxNum;
             }
             public void rverseDatas(ref int[,] iMG, ref int[,] iPG, ref int[,] iPB)
             {
@@ -162,6 +180,51 @@ namespace NumPreSolber
                     if (PB[index] < 0)
                     {
                         Console.Error.WriteLine("[E]:iPotentialBits < 0");
+                    }
+                }
+            }
+
+            public int getEmptyBoxNum()
+            {
+                return emptyBoxNum;
+            }
+            /* emptyBOxIdx:1〜
+             */
+            public int getEmptyBoxPotentials(int emptyBoxIdx)
+            {
+                int emptyBoxCounter = 0;
+                for(int i = 0; i < Consts.NINE; i++)
+                {
+                    if(MG[i] == 0)
+                    {
+                        emptyBoxCounter++;
+                    }
+                    if(emptyBoxCounter == emptyBoxIdx)
+                    {
+                        return PG[i];
+                    }
+                }
+                return 0;
+            }
+            public void removePotentialbyValue(int emptyBoxIdx, int iOrSum)
+            {
+                int emptyBoxCounter = 0;
+                for (int i = 0; i < Consts.NINE; i++)
+                {
+                    if (MG[i] == 0)
+                    {
+                        emptyBoxCounter++;
+                    }
+                    if (emptyBoxCounter == emptyBoxIdx)
+                    {
+                        for(int bitidx = 0; bitidx < Consts.NINE; bitidx++)
+                        {
+                            if((iOrSum & Consts.POTs[bitidx]) != 0)
+                            {
+                                clrPG(i, (bitidx + 1));
+                            }
+                        }
+                        break;
                     }
                 }
             }
@@ -449,10 +512,13 @@ namespace NumPreSolber
             }
             else
             {
-                DispPotentialGridAll();
-                DispGrid(iMainGrid);
+                //DispPotentialGridAll();
+                //DispGrid(iMainGrid);
 
                 removePossibilityWithConbination();
+                updateMainGridByPotentialsGrid();
+                //DispPotentialGridAll();
+                DispGrid(iMainGrid);
             }
 
 
@@ -499,9 +565,11 @@ namespace NumPreSolber
         private void updatePotentialsGridByMainGrid(int hIdx, int wIdx, int iType)
         {
             NineData ND = new NineData();
-            ND.setTarget(hIdx, wIdx, iType, in iMainGrid, in iPotentialsGrid, in iPotentialBits);
-            ND.updatePGbyMG();
-            ND.rverseDatas(ref iMainGrid, ref iPotentialsGrid, ref iPotentialBits);
+            if(ND.setTarget(hIdx, wIdx, iType, in iMainGrid, in iPotentialsGrid, in iPotentialBits) != 0)
+            {
+                ND.updatePGbyMG();
+                ND.rverseDatas(ref iMainGrid, ref iPotentialsGrid, ref iPotentialBits);
+            }
         }
 
         private void updatePotentialsGridByMainGrid(int[,] changedMG)
@@ -607,8 +675,88 @@ namespace NumPreSolber
 
         private void removePossibilityWithConbination()
         {
-
+            for (int n = 0; n < Consts.NINE; n++)
+            {
+                removePossibilityWithConbination(n, 0, Consts.Type_YOKO);
+                removePossibilityWithConbination(0, n, Consts.Type_TATE);
+                removePossibilityWithConbination(n, Consts.Type_BLOCK);
+            }
         }
+        private void removePossibilityWithConbination(int BlockNumber, int iType)
+        {
+            removePossibilityWithConbination(stBlockULPoints[BlockNumber].h_idx, stBlockULPoints[BlockNumber].w_idx, iType);
+        }
+        private void removePossibilityWithConbination(int hIdx, int wIdx, int iType)
+        {
+            NineData ND = new NineData();
+            int EmptyBoxNum = ND.setTarget(hIdx, wIdx, iType, in iMainGrid, in iPotentialsGrid, in iPotentialBits);
+            if (EmptyBoxNum >= 3)
+            {
+                removePossibilityWithConbinationSub(ND);
+                ND.rverseDatas(ref iMainGrid, ref iPotentialsGrid, ref iPotentialBits);
+            }
+        }
+        private void removePossibilityWithConbinationSub(NineData ND)
+        {
+            int emptyBoxNum = ND.getEmptyBoxNum();
+            for(int n = emptyBoxNum-1; n > 2; n--)
+            {
+                /* emptyBoxNum C n　の組み合わせを列挙する */
+                var nums = Enumerable.Range(1, emptyBoxNum).ToArray();
+                var combinations = Combination.Enumerate(nums, n, withRepetition: false);
+
+                foreach (var elem in combinations)
+                {
+                    string s = string.Join(",",elem.Select(x => x).ToArray());
+                    string[] arr = s.Split(",");
+                    int[] intArr = new int[n];
+                    int[] NonCombinationEmptyBox = Enumerable.Repeat<int>(1, emptyBoxNum).ToArray();    /* 組み合わせ対象外のマスの位置　0:組み合わせ対象、1:組み合わせ対象外 */
+                    for (int i = 0; i < n; i++)
+                    {
+                        intArr[i] = Int32.Parse(arr[i]);
+                        NonCombinationEmptyBox[intArr[i]-1] = 0;
+                    }
+
+                    /* 列挙された空白セルのポテンシャルをORしていき、ビット数がnであれば次の処理、そうでない場合はその組み合わせは終了 */
+                    int iOrSum = 0;
+                    int bitNum = 0;
+                    int tmpiOrSum;
+                    for (int empNo = 0; empNo < n; empNo++)
+                    {
+                        
+                        /* ORをとる */
+                        iOrSum |= ND.getEmptyBoxPotentials(intArr[empNo]);
+                        tmpiOrSum = iOrSum;
+                        /* ビット数を計算する */
+                        for (bitNum = 0; tmpiOrSum != 0; tmpiOrSum &= tmpiOrSum - 1) {
+                            bitNum++;
+                        }
+                        if(bitNum > n)
+                        {
+                            break;
+                        }
+                    }
+                    if(bitNum == n)
+                    {
+                        /* intArr[]のn個のマスはiOrSumに立っているbitの数字のいずれかが入ることが確定なので */
+                        /* それ以外の空白のマスのポテンシャルグリッドの対応するマスの数字のうちiOrSumに立っているbitの数字は消すことができる */
+                        for(int removeCounter = 0; removeCounter < emptyBoxNum; removeCounter++)
+                        {
+                            if(NonCombinationEmptyBox[removeCounter] == 1)
+                            {
+                                ND.removePotentialbyValue(removeCounter + 1, iOrSum);
+                            }
+                        }
+                        
+
+                    }
+
+                }
+
+
+            }
+        }
+        
 
 
 
@@ -618,57 +766,57 @@ namespace NumPreSolber
         /**********************************************************************/
         /* 現状のGrid(9×9)の状態を標準出力に出力する */
         public void DispGrid(int[,] dispGrid)
+    {
+        // 標準出力のエンコーディングにUTF-8を用いる
+        Console.OutputEncoding = Encoding.UTF8;
+        String Waku_Upper = "┏━┯━┯━┳━┯━┯━┳━┯━┯━┓";
+        String Waku_middle1 = "┠─┼─┼─╂─┼─┼─╂─┼─┼─┨";
+        String Waku_middle2 = "┣━┿━┿━╋━┿━┿━╋━┿━┿━┫";
+        String Waku_buttom = "┗━┷━┷━┻━┷━┷━┻━┷━┷━┛";
+
+
+        Console.WriteLine(Waku_Upper);
+        for (int j = 0; j < Consts.HeightMax; j++)
         {
-            // 標準出力のエンコーディングにUTF-8を用いる
-            Console.OutputEncoding = Encoding.UTF8;
-            String Waku_Upper = "┏━┯━┯━┳━┯━┯━┳━┯━┯━┓";
-            String Waku_middle1 = "┠─┼─┼─╂─┼─┼─╂─┼─┼─┨";
-            String Waku_middle2 = "┣━┿━┿━╋━┿━┿━╋━┿━┿━┫";
-            String Waku_buttom = "┗━┷━┷━┻━┷━┷━┻━┷━┷━┛";
-
-
-            Console.WriteLine(Waku_Upper);
-            for (int j = 0; j < Consts.HeightMax; j++)
+            Console.Write("┃");
+            for (int i = 0; i < Consts.WidthMax; i++)
             {
-                Console.Write("┃");
-                for (int i = 0; i < Consts.WidthMax; i++)
+                if (dispGrid[j, i] == 0)
                 {
-                    if (dispGrid[j, i] == 0)
-                    {
-                        Console.Write(" ");
-                    }
-                    else
-                    {
-                        Console.Write("{0}", dispGrid[j, i]);
-                    }
-
-                    if (i % 3 == 2)
-                    {
-                        Console.Write("┃");
-                    }
-                    else
-                    {
-                        Console.Write("│");
-                    }
-                }
-                Console.WriteLine("");
-                if (j % 3 == 2)
-                {
-                    if (j < Consts.HeightMax - 1)
-                    {
-                        Console.WriteLine(Waku_middle2);
-                    }
-                    else
-                    {
-                        Console.WriteLine(Waku_buttom);
-                    }
+                    Console.Write(" ");
                 }
                 else
                 {
-                    Console.WriteLine(Waku_middle1);
+                    Console.Write("{0}", dispGrid[j, i]);
+                }
+
+                if (i % 3 == 2)
+                {
+                    Console.Write("┃");
+                }
+                else
+                {
+                    Console.Write("│");
                 }
             }
+            Console.WriteLine("");
+            if (j % 3 == 2)
+            {
+                if (j < Consts.HeightMax - 1)
+                {
+                    Console.WriteLine(Waku_middle2);
+                }
+                else
+                {
+                    Console.WriteLine(Waku_buttom);
+                }
+            }
+            else
+            {
+                Console.WriteLine(Waku_middle1);
+            }
         }
+    }
         /* 現状のiPotentialsGridの状態を標準出力に出力する */
         public void DispPotentialGridAll()
         {
@@ -804,6 +952,32 @@ namespace NumPreSolber
         }
     }
 
+    public static class Combination
+    {
+        public static IEnumerable<T[]> Enumerate<T>(IEnumerable<T> items, int k, bool withRepetition)
+        {
+            if (k == 1)
+            {
+                foreach (var item in items)
+                    yield return new T[] { item };
+                yield break;
+            }
+            foreach (var item in items)
+            {
+                var leftside = new T[] { item };
+
+                // item よりも前のものを除く （順列と組み合わせの違い)
+                // 重複を許さないので、unusedから item そのものも取り除く
+                var unused = withRepetition ? items : items.SkipWhile(e => !e.Equals(item)).Skip(1).ToList();
+
+                foreach (var rightside in Enumerate(unused, k - 1, withRepetition))
+                {
+                    yield return leftside.Concat(rightside).ToArray();
+                }
+            }
+        }
+    }
+
     public class Solber_test
     {
         int[,] iQuestGrid;
@@ -848,7 +1022,22 @@ namespace NumPreSolber
         }
         public void executeTest_NormalLv()
         {
+            Console.WriteLine("<<< NormalLv Test Start >>>");
+            iQuestGrid = new int[Consts.HeightMax, Consts.WidthMax];
 
+            QuestionLv = Consts.QUESTION_Lv_Normal;                             /* ←ここで問題のLevelを指定 */
+            QuestionNo = 0;                                                     /* ←ここで使用する問題のNoを指定 */
+            QuestionNumMax = tester.getQuestionNumMax(Consts.QUESTION_Lv_Normal);
+
+            for (QuestionNo = 0; QuestionNo < QuestionNumMax; QuestionNo++)
+            {
+                Console.WriteLine("<<< Question No:{0} >>>", QuestionNo);
+                tester.getQuestion(QuestionLv, QuestionNo, ref iQuestGrid);
+                sol = new Solber();
+                sol.setQuestion(iQuestGrid);
+                sol.test_setAnswerInfo(QuestionLv, QuestionNo);
+                sol.SolberMain();
+            }
         }
 
 
