@@ -151,7 +151,7 @@ namespace NumPreSolber
                 }
              }
 
-            private void clrPG(int index, int iPotNum)
+            public void clrPG(int index, int iPotNum)
             {
                 /* フラグが立っていればクリアする */
                 if ((PG[index] & Consts.POTs[iPotNum - 1]) != 0)
@@ -409,6 +409,13 @@ namespace NumPreSolber
 
             DispGrid(iMainGrid);
 
+            /* ここまでで解ければやさしいLv */
+
+            serachOnlyOne();
+            updateMainGridByPotentialsGrid();
+            DispGrid(iMainGrid);
+
+            /* ここまでで解ければ普通Lv(仮) */
 
             for (int j = 0; j < Consts.HeightMax; j++)
             {
@@ -576,6 +583,64 @@ namespace NumPreSolber
                     outPutSystemErrror(MethodBase.GetCurrentMethod().Name);
                 }
             }
+        }
+
+        private void serachOnlyOne()
+        {
+            for (int n = 0; n < Consts.NINE; n++)
+            {
+                serachOnlyOne(n, 0, Consts.Type_YOKO);
+                serachOnlyOne(0, n, Consts.Type_TATE);
+                serachOnlyOne(n, Consts.Type_BLOCK);
+            }
+        }
+        private void serachOnlyOne(int BlockNumber, int iType)
+        {
+            serachOnlyOne(stBlockULPoints[BlockNumber].h_idx, stBlockULPoints[BlockNumber].w_idx, iType);
+        }
+        private void serachOnlyOne(int hIdx, int wIdx, int iType)
+        {
+            NineData ND = new NineData();
+            ND.setTarget(hIdx, wIdx, iType, in iMainGrid, in iPotentialsGrid, in iPotentialBits);
+            /* 数える */
+            int[]  bitCounter = new int[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            for(int m = 0; m < Consts.NINE; m++)
+            {
+                if(ND.PB[m] != 0)
+                {
+                    for (int n = 0; n < Consts.NINE; n++)
+                    {
+                        if((ND.PG[m] & Consts.POTs[n]) != 0)
+                        {
+                            bitCounter[n]++;
+                        }
+                    }
+                }
+            }
+            for(int p = 0; p < Consts.NINE; p++)                /* 1(0)から9(8)まで順にみて */
+            {
+                if(bitCounter[p] == 1)                          /* そのpが1個だった場合、その値p+1は確定なので*/
+                {
+                    for(int q = 0; q < Consts.NINE; q++)        /* そのpが入ったマスを見つけるためNDの９つのマスを順にみて*/
+                    {
+                        if((ND.PG[q] & Consts.POTs[p]) != 0)    /* pが入っていた場合、そのマスND.PB[q]の */
+                        {
+                            for(int r = 0; r < Consts.NINE; r++)    /* p以外をクリアするために0から8まで順に見て */
+                            {
+                                if (((ND.PG[q] & Consts.POTs[r]) != 0) && (r !=  p))    /* ビットが立っていてpではない場合 */
+                                {
+                                    ND.clrPG(q, r+1);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+
+            ND.rverseDatas(ref iMainGrid, ref iPotentialsGrid, ref iPotentialBits);
         }
 
 
