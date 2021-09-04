@@ -499,16 +499,41 @@ namespace NumPreSolber
          */
         public void SolberMain()
         {
-            bool Rtn;
+            bool Rtn, fin;
+            Rtn = false;
+            fin = false;
             /* 問題の初期値から初期ポテンシャルグリッドを作成する */
             updatePotentialsGridByMainGrid();
             /* 初期ポテンシャルグリッドから明示的に解決できる値を埋める処理を繰り返す */
             Rtn = updateMainGridByPotentialsGrid();
 
+
+            /* ここまでで解ければやさしいLv */
+            if(Rtn == true)
+            {
+                if(fin != true)
+                {
+                    /* 解決済みなら結果を表示 */
+                    DispGrid(iMainGrid);
+                    fin = true;
+                }
+            }
+            else
+            {
+                serachOnlyOne();
+                Rtn = updateMainGridByPotentialsGrid();
+            }
+
+            /* ここまでで解ければ普通Lv(仮) */
+
             if (Rtn == true)
             {
-                /* 解決済みなら結果を表示 */
-                DispGrid(iMainGrid);
+                if(fin != true)
+                {
+                    /* 解決済みなら結果を表示 */
+                    DispGrid(iMainGrid);
+                    fin = true;
+                }
             }
             else
             {
@@ -521,13 +546,6 @@ namespace NumPreSolber
                 DispGrid(iMainGrid);
             }
 
-            /* ここまでで解ければやさしいLv */
-
-            serachOnlyOne();
-            updateMainGridByPotentialsGrid();
-            DispGrid(iMainGrid);
-
-            /* ここまでで解ければ普通Lv(仮) */
 
 
 
