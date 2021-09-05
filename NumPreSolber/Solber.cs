@@ -537,8 +537,8 @@ namespace NumPreSolber
             }
             else
             {
-                //DispPotentialGridAll();
-                //DispGrid(iMainGrid);
+                DispPotentialGridAll();
+                DispGrid(iMainGrid);
 
                 removePossibilityWithConbination();
                 updateMainGridByPotentialsGrid();

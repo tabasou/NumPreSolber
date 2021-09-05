@@ -13,8 +13,8 @@ namespace NumPreSolber
         {
             iQuestGrid = new int[Consts.HeightMax, Consts.WidthMax];
 
-            QuestionLv = Consts.QUESTION_Lv_Normal;                               /* ←ここで問題のLevelを指定 */
-            QuestionNo = 0;                                                     /* ←ここで使用する問題のNoを指定 */
+            QuestionLv = Consts.QUESTION_Lv_Difficult;                               /* ←ここで問題のLevelを指定 */
+            QuestionNo = 2;                                                     /* ←ここで使用する問題のNoを指定 */
 
             this.Test_QuestionSelect(QuestionLv, QuestionNo);
             DispGrid();
